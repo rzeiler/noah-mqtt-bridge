@@ -19,4 +19,4 @@ RUN chmod a+x /app/run.sh
 # 4. Der wichtigste Teil: Den Startbefehl explizit als Shell-Ausführung deklarieren
 # Das verhindert, dass Node versucht, die .sh Datei zu fressen
 ENTRYPOINT [ "/usr/bin/env" ]
-CMD [ "/run.sh" ]
+CMD [ "./run.sh" ]
