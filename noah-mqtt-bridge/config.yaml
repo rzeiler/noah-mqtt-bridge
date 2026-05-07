@@ -1,6 +1,6 @@
 name: "Growatt Noah MQTT Bridge"
 description: "Holt Daten deines Noah Speichers in dein Home Assistant"
-version: "1.0.2"
+version: "1.0.3"
 slug: "noah_mqtt"
 boot: "auto"        # Startet das Add-on automatisch beim HA-Boot
 arch:

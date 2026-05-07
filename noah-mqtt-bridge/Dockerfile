@@ -13,7 +13,7 @@ RUN npm install --production
 COPY . .
 
 # Berechtigungen für das Start-Skript setzen
-RUN chmod a+x /app/run.sh
+RUN ls -la && chmod +x run.sh
 
 # Wir starten jetzt über die run.sh statt direkt über node
 CMD [ "./run.sh" ]
