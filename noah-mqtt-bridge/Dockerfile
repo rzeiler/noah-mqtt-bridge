@@ -17,4 +17,4 @@ RUN mv /app/noah-mqtt-bridge/run.sh /app/run.sh || true
 RUN chmod a+x /app/run.sh
 
 # Wir starten jetzt über die run.sh statt direkt über node
-CMD [ "/app/run.sh" ]
+CMD [ "./app/run.sh" ]
