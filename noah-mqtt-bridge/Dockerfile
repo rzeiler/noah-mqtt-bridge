@@ -16,4 +16,4 @@ COPY . .
 RUN chmod a+x /app/run.sh
 
 # Wir starten jetzt über die run.sh statt direkt über node
-CMD [ "/app/run.sh" ]
+CMD [ "./run.sh" ]
