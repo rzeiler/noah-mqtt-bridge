@@ -16,5 +16,7 @@ COPY . .
 RUN mv /app/noah-mqtt-bridge/run.sh /app/run.sh || true
 RUN chmod a+x /app/run.sh
 
-# Wir starten jetzt über die run.sh statt direkt über node
-CMD [ "./app/run.sh" ]
+# 4. Der wichtigste Teil: Den Startbefehl explizit als Shell-Ausführung deklarieren
+# Das verhindert, dass Node versucht, die .sh Datei zu fressen
+ENTRYPOINT [ "/usr/bin/env" ]
+CMD [ "bash", "./app/run.sh" ]
