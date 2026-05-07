@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bashio
+#!/bin/sh
 
 # Falls du Bashio nutzt (Standard in HA Add-ons), kannst du hier 
 # super einfach Debug-Infos ausgeben
