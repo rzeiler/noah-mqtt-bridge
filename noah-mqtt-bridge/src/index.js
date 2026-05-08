@@ -1,7 +1,7 @@
 const { GrowattClient } = require("./GrowattClient");
 const { MqttHandler } = require("./MqttHandler");
 const configHandler = require("./ConfigHandler");
-const { Check } = require("../Check");
+const { Check } = require("./Check");
 
 async function start() {
   // parameter
