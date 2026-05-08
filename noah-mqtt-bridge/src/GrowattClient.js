@@ -102,8 +102,6 @@ class GrowattClient {
     return response.data;
   }
 
- 
-
   async getNoahList(plantId) {
     const params = new URLSearchParams();
     params.append("plantId", plantId);
@@ -132,6 +130,29 @@ class GrowattClient {
     params.append("deviceSn", serial);
     const response = await this.client.post(
       `/panel/noah/getNoahStatusData?plantId=${plantId}`,
+      params.toString(),
+    );
+    return response.data;
+  }
+
+  async getNoahTotalData(plantId, serial) {
+    const params = new URLSearchParams();
+    params.append("deviceSn", serial);
+    const response = await this.client.post(
+      `/panel/noah/getNoahTotalData?plantId=${plantId}`,
+      params.toString(),
+    );
+    return response.data;
+  }
+
+  async getNoahTotalData(serial, startDate, endDate) {
+    const params = new URLSearchParams();
+    params.append("deviceSn", serial);
+    params.append("start", "0");
+    params.append("startDate", startDate);
+    params.append("endDate", endDate);
+    const response = await this.client.post(
+      `/device/getNoahHistory`,
       params.toString(),
     );
     return response.data;

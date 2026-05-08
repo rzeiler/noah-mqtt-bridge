@@ -7,6 +7,7 @@ async function start() {
   // parameter
   let plantId = null;
   let deviceSn = null;
+  let eToday = null;
   let intervalID = null;
 
   // Konfiguration laden
@@ -35,9 +36,11 @@ async function start() {
       }
 
       // get device
-      if (!this.deviceSn && this.plantId) {
+      if (this.plantId) {
         const devices = await growatt.getPlantDevices(this.plantId);
-        this.deviceSn = checker.checkPlantDevices(devices);
+        const { sn, eToday } = checker.checkPlantDevices(devices);
+        this.deviceSn = sn;
+        this.eToday = eToday; // Falls du diesen Wert global speichern willst
       }
 
       // get data
@@ -53,6 +56,7 @@ async function start() {
           pac: data.obj.pac,
           ppv: data.obj.ppv,
           totalBatteryPackChargingPower: data.obj.totalBatteryPackChargingPower,
+          totalBatteryPackChargingEnergy: this.eToday,
         };
 
         // send object

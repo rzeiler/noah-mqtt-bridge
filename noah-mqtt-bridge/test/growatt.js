@@ -8,6 +8,7 @@ async function start() {
   const config = configHandler.load();
   let plantId = null;
   let deviceSn = null;
+  let eToday = null;
   let intervalID = null;
 
   // pruefungen
@@ -32,11 +33,16 @@ async function start() {
         console.log("plantId", this.plantId);
       }
 
-      if (!this.deviceSn && this.plantId) {
+      if (this.plantId) {
         const devices = await growatt.getPlantDevices(this.plantId);
         console.log("devices", devices);
-        this.deviceSn = checker.checkPlantDevices(devices);
-        console.log("deviceSn", this.deviceSn);
+
+        const { sn, eToday } = checker.checkPlantDevices(devices);
+
+        this.deviceSn = sn;
+        this.eToday = eToday; // Falls du diesen Wert global speichern willst
+
+        console.log("deviceSn", this.deviceSn, this.eToday);
       }
 
       if (this.deviceSn && this.plantId) {
@@ -47,16 +53,29 @@ async function start() {
 
         console.log("data", data);
 
+        const data2 = await growatt.getNoahTotalData(
+          this.deviceSn,
+          "2026-05-08",
+          "2026-05-08",
+        );
+
+        console.log("getNoahTotalData", data2.obj.datas[0]);
+
+        const data3 = await growatt.getNoahList(this.plantId, this.deviceSn);
+
+        console.log("getNoahList", data3);
+
         const daten = {
           totalBatteryPackSoc: data.obj.totalBatteryPackSoc,
           pac: data.obj.pac,
           ppv: data.obj.ppv,
           totalBatteryPackChargingPower: data.obj.totalBatteryPackChargingPower,
+          totalBatteryPackChargingEnergy: this.eToday,
         };
 
         mqtt.publishState(daten);
 
-        clearInterval(this.intervalID);
+        //clearInterval(this.intervalID);
       }
     } catch (err) {
       console.error("❌ Fehler:", err.message);

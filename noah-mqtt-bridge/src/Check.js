@@ -5,30 +5,42 @@ class Check {
    */
   checkPlantDevices(response) {
     if (!response || typeof response !== "object") {
-        throw new Error(`API Antwort ist kein gültiges Objekt. Result ist ${response}`);
+      throw new Error(
+        `API Antwort ist kein gültiges Objekt. Result ist ${response}`,
+      );
     }
 
     if (response.result !== 1) {
-        // Oft result: -1 wenn Session abgelaufen oder result: 0 bei Fehlern
-        throw new Error(`API Fehler: Result ist ${response.result}. Eventuell Session abgelaufen?`);
+      // Oft result: -1 wenn Session abgelaufen oder result: 0 bei Fehlern
+      throw new Error(
+        `API Fehler: Result ist ${response.result}. Eventuell Session abgelaufen?`,
+      );
     }
 
     const obj = response.obj;
     if (!obj || typeof obj !== "object") {
-        throw new Error(`API Antwort enthält kein gültiges Daten-Objekt (obj). Result ist ${response}`);
+      throw new Error(
+        `API Antwort enthält kein gültiges Daten-Objekt (obj). Result ist ${response}`,
+      );
     }
 
     if (!Array.isArray(obj.datas) || obj.datas.length < 1) {
-        throw new Error(`Keine Geräte (datas) in der Liste gefunden. Result ist ${response}`);
+      throw new Error(
+        `Keine Geräte (datas) in der Liste gefunden. Result ist ${response}`,
+      );
     }
 
     const firstDevice = obj.datas[0];
     if (!firstDevice.sn) {
-        throw new Error(`Das gefundene Gerät hat keine gültige Seriennummer (sn). Result ist ${response}`);
+      throw new Error(
+        `Das gefundene Gerät hat keine gültige Seriennummer (sn). Result ist ${response}`,
+      );
     }
 
-    // Alles okay, wir geben die SN zurück
-    return firstDevice.sn;
+    return {
+      sn: firstDevice.sn,
+      eToday: parseFloat(firstDevice.eToday || 0),
+    };
   }
 
   /**
@@ -45,7 +57,9 @@ class Check {
     }
 
     if (!response[0].id) {
-      throw new Error(`Die erste Anlage im Profil hat keine gültige ID. Result ist ${response}`);
+      throw new Error(
+        `Die erste Anlage im Profil hat keine gültige ID. Result ist ${response}`,
+      );
     }
 
     // Alles okay, wir geben die ID zurück
