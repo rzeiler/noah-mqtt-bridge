@@ -1,16 +1,14 @@
-const { GrowattClient } = require("./GrowattClient");
-const { MqttHandler } = require("./MqttHandler");
-const configHandler = require("./ConfigHandler");
-const { Check } = require("../Check");
+const { GrowattClient } = require("../src/GrowattClient");
+const { MqttHandler } = require("../src/MqttHandler");
+const configHandler = require("../src/ConfigHandler");
+const { Check } = require("../src/Check");
 
 async function start() {
-  // parameter
+  // Konfiguration laden
+  const config = configHandler.load();
   let plantId = null;
   let deviceSn = null;
   let intervalID = null;
-
-  // Konfiguration laden
-  const config = configHandler.load();
 
   // pruefungen
   const checker = new Check();
@@ -28,26 +26,27 @@ async function start() {
 
   const loop = async () => {
     try {
-      // get plants
       if (!this.plantId) {
         var plants = await growatt.getPlants();
         this.plantId = checker.checkPlantData(plants);
+        console.log("plantId", this.plantId);
       }
 
-      // get device
       if (!this.deviceSn && this.plantId) {
         const devices = await growatt.getPlantDevices(this.plantId);
+        console.log("devices", devices);
         this.deviceSn = checker.checkPlantDevices(devices);
+        console.log("deviceSn", this.deviceSn);
       }
 
-      // get data
       if (this.deviceSn && this.plantId) {
         const data = await growatt.getNoahStatusData(
           this.plantId,
           this.deviceSn,
         );
 
-        // build object
+        console.log("data", data);
+
         const daten = {
           totalBatteryPackSoc: data.obj.totalBatteryPackSoc,
           pac: data.obj.pac,
@@ -55,12 +54,14 @@ async function start() {
           totalBatteryPackChargingPower: data.obj.totalBatteryPackChargingPower,
         };
 
-        // send object
         mqtt.publishState(daten);
+
+        clearInterval(this.intervalID);
       }
     } catch (err) {
       console.error("❌ Fehler:", err.message);
       clearInterval(this.intervalID);
+      mqtt.disconnect();
     }
   };
 
