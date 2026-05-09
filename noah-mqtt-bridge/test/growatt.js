@@ -23,10 +23,15 @@ async function start() {
   await mqtt.connect();
 
   const growatt = new GrowattClient();
-  const success = await growatt.login(config.username, config.password);
+  let success = true;
 
   const loop = async () => {
     try {
+      // interval stopen
+      clearInterval(this.intervalID);
+
+      await growatt.login(config.username, config.password);
+
       if (!this.plantId) {
         var plants = await growatt.getPlants();
         this.plantId = checker.checkPlantData(plants);
@@ -53,6 +58,7 @@ async function start() {
 
         console.log("data", data);
 
+        /*
         const data2 = await growatt.getNoahTotalData(
           this.deviceSn,
           "2026-05-08",
@@ -64,7 +70,7 @@ async function start() {
         const data3 = await growatt.getNoahList(this.plantId, this.deviceSn);
 
         console.log("getNoahList", data3);
-
+*/
         const daten = {
           totalBatteryPackSoc: data.obj.totalBatteryPackSoc,
           pac: data.obj.pac,
@@ -74,19 +80,19 @@ async function start() {
         };
 
         mqtt.publishState(daten);
-
-        //clearInterval(this.intervalID);
       }
+
+      // interval wirder starten
+      this.intervalID = setInterval(loop, config.interval * 1000);
     } catch (err) {
       console.error("❌ Fehler:", err.message);
       clearInterval(this.intervalID);
-      mqtt.disconnect();
     }
   };
 
   if (success) {
+    console.error("❌ success:");
     loop();
-    this.intervalID = setInterval(loop, config.interval * 1000);
   }
 }
 

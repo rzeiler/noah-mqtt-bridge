@@ -1,4 +1,6 @@
 const axios = require("axios");
+const { Check } = require("../src/Check");
+
 const { wrapper } = require("axios-cookiejar-support");
 const { CookieJar } = require("tough-cookie");
 const CryptoJS = require("crypto-js");
@@ -7,6 +9,7 @@ const path = require("path");
 
 class GrowattClient {
   constructor() {
+    this.config = null;
     this.cookiePath = path.join("./", "cookies.json");
     this.jar = new CookieJar();
     this.client = wrapper(
@@ -87,7 +90,7 @@ class GrowattClient {
   }
 
   async getPlants() {
-    const response = await this.client.get("/index/getPlantListTitle");
+    let response = await this.client.get("/index/getPlantListTitle");
     return response.data;
   }
 

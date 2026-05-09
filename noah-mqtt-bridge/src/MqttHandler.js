@@ -109,7 +109,7 @@ class MqttHandler {
     }
 
     console.log(
-      "📢 MQTT Discovery: Alle 4 Sensoren erfolgreich an Home Assistant übermittelt.",
+      "📢 MQTT Discovery: Alle 5 Sensoren erfolgreich an Home Assistant übermittelt.",
     );
   }
 

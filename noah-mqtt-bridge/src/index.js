@@ -25,10 +25,15 @@ async function start() {
   await mqtt.connect();
 
   const growatt = new GrowattClient();
-  const success = await growatt.login(config.username, config.password);
+  const success = true;
 
   const loop = async () => {
+    // interval stopen
+    clearInterval(this.intervalID);
+
     try {
+      await growatt.login(config.username, config.password);
+
       // get plants
       if (!this.plantId) {
         var plants = await growatt.getPlants();
@@ -66,11 +71,13 @@ async function start() {
       console.error("❌ Fehler:", err.message);
       clearInterval(this.intervalID);
     }
+
+    // interval wirder starten
+    this.intervalID = setInterval(loop, config.interval * 1000);
   };
 
   if (success) {
     loop();
-    this.intervalID = setInterval(loop, config.interval * 1000);
   }
 }
 
