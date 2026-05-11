@@ -3,6 +3,9 @@ const { MqttHandler } = require("../src/MqttHandler");
 const configHandler = require("../src/ConfigHandler");
 const { Check } = require("../src/Check");
 
+// Hilfsfunktion für die Pause
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function start() {
   // Konfiguration laden
   const config = configHandler.load();
@@ -23,17 +26,20 @@ async function start() {
   await mqtt.connect();
 
   const growatt = new GrowattClient();
-  let success = true;
+  // anmelden
+
+  let success = await growatt.login(config.username, config.password);
 
   const loop = async () => {
     try {
       // interval stopen
-      clearInterval(this.intervalID);
-
-      await growatt.login(config.username, config.password);
+      if (this.intervalID) {
+        clearInterval(this.intervalID);
+      }
+      console.error("Loop ", this.intervalID);
 
       if (!this.plantId) {
-        var plants = await growatt.getPlants();
+        const plants = await growatt.getPlants();
         this.plantId = checker.checkPlantData(plants);
         console.log("plantId", this.plantId);
       }
@@ -55,7 +61,6 @@ async function start() {
           this.plantId,
           this.deviceSn,
         );
-
         console.log("data", data);
 
         /*
@@ -82,16 +87,27 @@ async function start() {
         mqtt.publishState(daten);
       }
 
-      // interval wirder starten
+      // interval wieder starten
       this.intervalID = setInterval(loop, config.interval * 1000);
     } catch (err) {
       console.error("❌ Fehler:", err.message);
       clearInterval(this.intervalID);
+
+      if (err.message.indexOf("Sitzung ist abgelaufen.") != -1) {
+
+        await wait(60000); // Kurz warten vor Re-Start
+
+        console.warn(
+          "Sitzung abgelaufen. Warte 1 min. Beende Prozess für Neustart durch Watchdog...",
+        );
+
+        // Prozess hart beenden
+        process.exit(1);
+      }
     }
   };
 
   if (success) {
-    console.error("❌ success:");
     loop();
   }
 }

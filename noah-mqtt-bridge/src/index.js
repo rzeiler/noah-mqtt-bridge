@@ -25,15 +25,13 @@ async function start() {
   await mqtt.connect();
 
   const growatt = new GrowattClient();
-  const success = true;
+  const success = await growatt.login(config.username, config.password);
 
   const loop = async () => {
     // interval stopen
     clearInterval(this.intervalID);
 
     try {
-      await growatt.login(config.username, config.password);
-
       // get plants
       if (!this.plantId) {
         var plants = await growatt.getPlants();
@@ -70,6 +68,17 @@ async function start() {
     } catch (err) {
       console.error("❌ Fehler:", err.message);
       clearInterval(this.intervalID);
+
+      if (err.message.indexOf("Sitzung ist abgelaufen.") != -1) {
+        await wait(60000); // Kurz warten vor Re-Start
+
+        console.warn(
+          "Sitzung abgelaufen. Warte 1 min. Beende Prozess für Neustart durch Watchdog...",
+        );
+
+        // Prozess hart beenden
+        process.exit(1);
+      }
     }
 
     // interval wirder starten

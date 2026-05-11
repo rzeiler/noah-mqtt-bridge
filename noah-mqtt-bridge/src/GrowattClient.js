@@ -15,8 +15,8 @@ class GrowattClient {
     this.client = wrapper(
       axios.create({
         jar: this.jar,
-        /*baseURL: "https://server.growatt.com",*/
-        baseURL: "https://openapi.growatt.com",
+        baseURL: "https://server.growatt.com",
+        /* baseURL: "https://openapi.growatt.com",*/
         withCredentials: true,
         headers: {
           "User-Agent":
@@ -44,13 +44,6 @@ class GrowattClient {
   }
 
   async login(user, pass) {
-    // Erst prüfen, ob wir evtl. schon eingeloggt sind
-    const alreadyLoggedIn = await this.checkSession();
-    if (alreadyLoggedIn) {
-      console.log("✅ Session ist noch gültig, kein Login nötig.");
-      return true;
-    }
-
     const params = new URLSearchParams();
     params.append("account", user);
     params.append("password", pass);
@@ -62,6 +55,8 @@ class GrowattClient {
         response.data &&
         (response.data.result === 1 || response.status === 200);
 
+      console.log("login",response.data);
+
       if (success) {
         this.saveCookies(); // Bei Erfolg speichern
       }
@@ -72,22 +67,7 @@ class GrowattClient {
     }
   }
 
-  // Hilfsfunktion: Testet, ob die aktuelle Session noch lebt
-  async checkSession() {
-    try {
-      const data = this.getPlants();
-      const indexOf = data.indexOf(
-        '<a href="/login" target="_top" id="login">Login Page</a>',
-      );
-      if (indexOf > 200) {
-        return false;
-      } else {
-        return true;
-      }
-    } catch {
-      return false;
-    }
-  }
+ 
 
   async getPlants() {
     let response = await this.client.get("/index/getPlantListTitle");
