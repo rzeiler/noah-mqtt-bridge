@@ -75,10 +75,10 @@ async function start() {
         console.warn(
           "Sitzung abgelaufen. Warte 1 min. Beende Prozess für Neustart durch Watchdog...",
         );
-
-        // Prozess hart beenden
-        process.exit(1);
       }
+
+      // Prozess hart beenden
+      process.exit(1);
     }
 
     // interval wirder starten
